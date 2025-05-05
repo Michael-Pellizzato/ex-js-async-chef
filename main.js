@@ -18,12 +18,30 @@ async function fetchData(url) {
 }
 
 const getChefBirthday = async (id) => {
-  const recipe = await fetchData(`https://dummyjson.com/recipes/${id}`);
-  const chef = await fetchData(`https://dummyjson.com/users/${recipe.userId}`);
+  let recipe;
+  try {
+    recipe = await fetchData(`https://dummyjson.com/recipes/${id}`);
+  } catch (err) {
+    throw new Error(`la ricetta non torna`, err.message);
+  }
 
-  return chef.birthDate;
+  let chef;
+  try {
+    chef = await fetchData(`https://dummyjson.com/users/${recipe.userId}`);
+  } catch (err) {
+    throw new Error(`lo chef non compie gli anni`, err.message);
+  }
+  const compleanno = dayjs(chef.birthDate).format("DD/MM/YYYY");
+  return compleanno;
 };
 
 getChefBirthday(1)
   .then((birthday) => console.log("Data di nascita dello chef:", birthday))
   .catch((error) => console.error("Errore:", error.message));
+
+/*🎯 Bonus 1
+Attualmente, se la prima richiesta non trova una ricetta, la seconda richiesta potrebbe comunque essere eseguita causando errori a cascata.
+Modifica getChefBirthday(id) per intercettare eventuali errori prima di fare la seconda richiesta.*/
+
+/*🎯 Bonus 2
+Utilizza la libreria dayjs per formattare la data di nascita nel formato giorno/mese/anno.*/
